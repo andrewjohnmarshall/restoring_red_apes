@@ -30,6 +30,8 @@ d <- d %>%
 
 ```
 
+# Analysis
+
 
 # Figures
 
@@ -40,13 +42,12 @@ d <- d %>%
 col.NC <- "cornflowerblue"
 col.HE <- "darkorange"
 col.WE <- "darkorange4"
+col.DR <- "darkgreen"
 
 d$per_left_HE       <- 100 * d$pop_2032_HE/d$pop_current
 d$per_left_nochange <- 100 * d$pop_2032_current/d$pop_current
 d$per_left_WE       <- 100 * d$pop_2032_WE/d$pop_current
 d$per_2122          <- 100 * d$pop_2122/d$pop_current
-
-my.ylims <- c(-0.005, 0.04)
 
 p1 <-ggplot(d, aes(x = per_left_WE)) +
      geom_histogram(aes(y = ..density..), bins = 80,
@@ -63,7 +64,7 @@ p1 <-ggplot(d, aes(x = per_left_WE)) +
      ylab("\n") + 
      scale_x_continuous(limits = c(-10, 520),
                         breaks = c(0, 100, 200, 300, 400, 500)) +
-     scale_y_continuous(limits =c(-0.001, 0.04),
+     scale_y_continuous(limits =c(-0.0025, 0.04),
                         breaks = c(0, 0.01, 0.02, 0.03, 0.04)) +
      theme_minimal() +
      theme(axis.text.x = element_blank()) +
@@ -71,7 +72,7 @@ p1 <-ggplot(d, aes(x = per_left_WE)) +
               hjust = 0, label = "Whole Earth scenario", col = col.WE) +
      annotate(geom = "text", x = 410, y = 0.0325, cex = 4.5,
               hjust = 0,label = "(2032)", col = col.WE) +
-     annotate(geom = "text", x = median(d$per_left_WE), y = -0.002, 
+     annotate(geom = "text", x = median(d$per_left_WE), y = -0.0025, 
               cex = 3.5, label = "median", col = "gray40") +
      annotate(geom = "text", x = -10, y = 0.0375, 
               cex = 7, label = "a)", col = "black")
@@ -174,6 +175,7 @@ dev.off()
 col.NC <- "cornflowerblue"
 col.HE <- "darkorange"
 col.WE <- "darkorange4"
+col.DR <- "darkgreen"
 
 d$offtake_rate_current <- 100 * (d$offtake_current / d$pop_current)
 d$offtake_rate_HE      <- 100 * (d$offtake_HE / d$pop_current)
