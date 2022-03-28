@@ -35,6 +35,77 @@ d <- d %>%
 
 # Analysis
 
+##Variation among experts
+
+```{r}
+
+# Absolute numbers quite variable:
+mean(d$pop_current)
+range(d$pop_current)
+mean(d$offtake_current, na.rm = TRUE)
+range(d$offtake_current, na.rm = TRUE)
+
+# Relative effects broadly consistent, e.g.,
+range(d$pop_2032_WE - d$pop_2032_current)
+range(d$pop_2032_HE - d$pop_2032_current) 
+range(d$offtake_WE - d$offtake_current, na.rm = TRUE) 
+range(d$offtake_HE - d$offtake_current, na.rm = TRUE)
+
+```
+
+## Current conditions
+
+```{r}
+
+d$per_left_nochange <- 100 * d$pop_2032_current/d$pop_current
+median(d$per_left_nochange)
+range(d$per_left_nochange)
+
+d$offtake_rate_current <- 100 * (d$offtake_current / d$pop_current)
+median(d$offtake_rate_current, na.rm = TRUE)
+range(d$offtake_rate_current, na.rm = TRUE)
+
+```
+
+## Half Earth
+
+```{r}
+
+d$per_left_HE       <- 100 * d$pop_2032_HE/d$pop_current
+median(d$per_left_HE)
+range(d$per_left_HE)
+
+d$offtake_rate_HE      <- 100 * (d$offtake_HE / d$pop_current)
+median(d$offtake_rate_HE)
+range(d$offtake_rate_HE)
+
+```
+
+## Whole Earth
+
+```{r}
+
+d$per_left_WE       <- 100 * d$pop_2032_WE/d$pop_current
+median(d$per_left_WE)
+range(d$per_left_WE)
+
+d$offtake_rate_WE      <- 100 * (d$offtake_WE / d$pop_current)
+median(d$offtake_rate_WE)
+range(d$offtake_rate_WE)
+
+```
+
+## Aspriational scenario
+
+```{r}
+
+d$per_2122          <- 100 * d$pop_2122/d$pop_current
+median(d$per_2122)
+range(d$per_2122)
+
+```
+
+
 
 # Figures
 
