@@ -1,6 +1,9 @@
 
 Analysis and visualization of expert assessments of orangutan population trends under different scenarios. For Meijaard et al. manuscript "Expert guided analysis for restoring the red ape in a whole or half earth context"
 
+2022-03-25
+Andy Marshall
+
 # Load packages, versions
 
 R version 4.1.3 (2022-03-10) 
