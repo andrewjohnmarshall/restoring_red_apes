@@ -1,7 +1,7 @@
 
 Analysis and visualization of expert assessments of orangutan population trends under different scenarios. For Meijaard et al. manuscript "Expert guided analysis for restoring the red ape in a whole or half earth context"
 
-2022-03-25
+2022-04-04
 Andy Marshall
 
 # Load packages, versions
@@ -350,25 +350,30 @@ d3 <- d2 %>%
      gather(2:4, key = "scenario", value = "estimate") %>% 
      left_join(crib)
 
-d3$jit_num <- jitter(as.numeric(d3$num), amount = 0.05)
+d3$jit_num <- jitter(as.numeric(d3$num), amount = 0.035)
 d3$estimate <- as.numeric(d3$estimate)
 
-pdf("output/fig.s02.pdf", height = 8, width = 10)
+pdf("output/fig.s02.pdf", height = 6, width = 5)
 
 ggplot(d3, aes(x = jit_num, y = estimate)) +
-     geom_point(aes(color = factor(Expert))) +
+     geom_point(aes(color = factor(Expert)), size = 2.5) +
      geom_line(aes(group = factor(Expert),
                    color = factor(Expert)),
                    alpha = 0.5) +
      scale_color_viridis_d() + 
      xlab("") + 
      ylab("Estimated offtake rate (%)") + 
-     theme_minimal() + 
+     theme_minimal() +
+     theme(plot.margin = margin(1, 1, 1, 0.5, "cm")) +
      theme(legend.position = "none") +  
+     theme(panel.grid.major.y = element_line(size = 0.5,
+                                             color = "gray80")) +
      scale_x_continuous(breaks = c(1,2,3),
+                        limits = c (0.75, 3.1),
                         labels = c("Half Earth", 
                                    "Current", 
                                    "Whole Earth")) +
+     theme(axis.text = element_text(size = 11)) +
      geom_point(aes(x = 1, y = median(d3$estimate[d3$num == "1"], na.rm = TRUE)),
                 pch = 17, colour= "gray40", size = 4) +
      geom_point(aes(x = 1, y = median(d3$estimate[d3$num == "1"], na.rm = TRUE)),
@@ -381,7 +386,7 @@ ggplot(d3, aes(x = jit_num, y = estimate)) +
                 pch = 17, colour= "gray40", size = 4) +
      geom_point(aes(x = 3, y = median(d3$estimate[d3$num == "3"], na.rm = TRUE)),
                 pch = 17, colour="white", size = 2) +
-     annotate(geom = "text", x = 0.9,
+     annotate(geom = "text", x = 0.78,
                y = median(d3$estimate[d3$num == "1"], na.rm = TRUE), 
                position = 2, cex = 3, label = "median", col = "gray40")
 dev.off()
