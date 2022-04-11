@@ -1,7 +1,7 @@
 
 Analysis and visualization of expert assessments of orangutan population trends under different scenarios. For Meijaard et al. manuscript "Expert guided analysis for restoring the red ape in a whole or half earth context"
 
-2022-04-04
+2022-04-11
 Andy Marshall
 
 # Load packages, versions
@@ -59,11 +59,11 @@ range(d$offtake_HE - d$offtake_current, na.rm = TRUE)
 
 d$per_left_nochange <- 100 * d$pop_2032_current/d$pop_current
 median(d$per_left_nochange)
-range(d$per_left_nochange)
+quantile(d$per_left_nochange)
 
 d$offtake_rate_current <- 100 * (d$offtake_current / d$pop_current)
 median(d$offtake_rate_current, na.rm = TRUE)
-range(d$offtake_rate_current, na.rm = TRUE)
+quantile(d$offtake_rate_current, na.rm = TRUE)
 
 ```
 
@@ -74,6 +74,9 @@ range(d$offtake_rate_current, na.rm = TRUE)
 d$per_left_HE       <- 100 * d$pop_2032_HE/d$pop_current
 median(d$per_left_HE)
 range(d$per_left_HE)
+
+# all but one expert predicted decline less than predicted under current conditions:
+d$per_left_HE - d$per_left_nochange
 
 d$offtake_rate_HE      <- 100 * (d$offtake_HE / d$pop_current)
 median(d$offtake_rate_HE)
@@ -92,6 +95,7 @@ range(d$per_left_WE)
 d$offtake_rate_WE      <- 100 * (d$offtake_WE / d$pop_current)
 median(d$offtake_rate_WE)
 range(d$offtake_rate_WE)
+
 
 ```
 
@@ -225,7 +229,8 @@ p4 <- ggplot(d, aes(x = per_2122)) +
      annotate(geom = "text", x = 410, y = 0.0375, cex = 4.5,
               hjust = 0, label = "Zero-offtake,", col = col.DR) +
      annotate(geom = "text", x = 410, y = 0.0325, cex = 4.5,
-              hjust = 0, label = "zero-forest loss scenario", col = col.DR)  +
+              hjust = 0, label = "zero-forest loss scenario", 
+              col = col.DR)  +
      annotate(geom = "text", x = 410, y = 0.0275, cex = 4.5,
               hjust = 0, label = "(2122)", col = col.DR)+
      annotate(geom = "text", x = -10, y = 0.0375, 

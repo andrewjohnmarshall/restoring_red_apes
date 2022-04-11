@@ -1,10 +1,8 @@
-
+# 
 # Analysis and visualization of expert assessments of orangutan population trends under different scenarios. For Meijaard et al. manuscript "Expert guided analysis for restoring the red ape in a whole or half earth context"
 # 
-# 2022-03-28
+# 2022-04-11
 # Andy Marshall
-
-# This file contains the same code as the *.Rmd
 
 # Load packages, versions
 
@@ -20,7 +18,6 @@
 library(tidyverse)
 library(ggpubr)
 
-
 # Pull & wrangle data
 
 d <- read_csv("data/data-2022-03-23.csv")
@@ -29,11 +26,9 @@ d <- d %>%
      pivot_wider(names_from = Names, values_from = value)
 
 
-
 # Analysis
 
 ##Variation among experts
-
 
 # Absolute numbers quite variable:
 mean(d$pop_current)
@@ -51,11 +46,11 @@ range(d$offtake_HE - d$offtake_current, na.rm = TRUE)
 
 d$per_left_nochange <- 100 * d$pop_2032_current/d$pop_current
 median(d$per_left_nochange)
-range(d$per_left_nochange)
+quantile(d$per_left_nochange)
 
 d$offtake_rate_current <- 100 * (d$offtake_current / d$pop_current)
 median(d$offtake_rate_current, na.rm = TRUE)
-range(d$offtake_rate_current, na.rm = TRUE)
+quantile(d$offtake_rate_current, na.rm = TRUE)
 
 
 ## Half Earth
@@ -64,10 +59,12 @@ d$per_left_HE       <- 100 * d$pop_2032_HE/d$pop_current
 median(d$per_left_HE)
 range(d$per_left_HE)
 
+# all but one expert predicted decline less than predicted under current conditions:
+d$per_left_HE - d$per_left_nochange
+
 d$offtake_rate_HE      <- 100 * (d$offtake_HE / d$pop_current)
 median(d$offtake_rate_HE)
 range(d$offtake_rate_HE)
-
 
 ## Whole Earth
 
@@ -79,13 +76,11 @@ d$offtake_rate_WE      <- 100 * (d$offtake_WE / d$pop_current)
 median(d$offtake_rate_WE)
 range(d$offtake_rate_WE)
 
-
 ## Aspriational scenario
 
 d$per_2122          <- 100 * d$pop_2122/d$pop_current
 median(d$per_2122)
 range(d$per_2122)
-
 
 # Figures
 
@@ -203,7 +198,8 @@ p4 <- ggplot(d, aes(x = per_2122)) +
      annotate(geom = "text", x = 410, y = 0.0375, cex = 4.5,
               hjust = 0, label = "Zero-offtake,", col = col.DR) +
      annotate(geom = "text", x = 410, y = 0.0325, cex = 4.5,
-              hjust = 0, label = "zero-forest loss scenario", col = col.DR)  +
+              hjust = 0, label = "zero-forest loss scenario", 
+              col = col.DR)  +
      annotate(geom = "text", x = 410, y = 0.0275, cex = 4.5,
               hjust = 0, label = "(2122)", col = col.DR)+
      annotate(geom = "text", x = -10, y = 0.0375, 
@@ -218,9 +214,7 @@ annotate_figure(figure,left = text_grob("Density",
                                         rot = 90))
 dev.off()
 
-
 ## Figure 03
-
 
 col.NC <- "cornflowerblue"
 col.HE <- "darkorange"
@@ -300,7 +294,6 @@ annotate_figure(figure, left = text_grob("Density",
                 bottom = text_grob("Estimated offtake rate (%)"))
 dev.off()
 
-
 ## Figure S02
 
 d$offtake_rate_current <- 100 * (d$offtake_current / d$pop_current)
@@ -322,25 +315,30 @@ d3 <- d2 %>%
      gather(2:4, key = "scenario", value = "estimate") %>% 
      left_join(crib)
 
-d3$jit_num <- jitter(as.numeric(d3$num), amount = 0.05)
+d3$jit_num <- jitter(as.numeric(d3$num), amount = 0.035)
 d3$estimate <- as.numeric(d3$estimate)
 
-pdf("output/fig.s02.pdf", height = 8, width = 10)
+pdf("output/fig.s02.pdf", height = 6, width = 5)
 
 ggplot(d3, aes(x = jit_num, y = estimate)) +
-     geom_point(aes(color = factor(Expert))) +
+     geom_point(aes(color = factor(Expert)), size = 2.5) +
      geom_line(aes(group = factor(Expert),
                    color = factor(Expert)),
                alpha = 0.5) +
      scale_color_viridis_d() + 
      xlab("") + 
      ylab("Estimated offtake rate (%)") + 
-     theme_minimal() + 
+     theme_minimal() +
+     theme(plot.margin = margin(1, 1, 1, 0.5, "cm")) +
      theme(legend.position = "none") +  
+     theme(panel.grid.major.y = element_line(size = 0.5,
+                                             color = "gray80")) +
      scale_x_continuous(breaks = c(1,2,3),
+                        limits = c (0.75, 3.1),
                         labels = c("Half Earth", 
                                    "Current", 
                                    "Whole Earth")) +
+     theme(axis.text = element_text(size = 11)) +
      geom_point(aes(x = 1, y = median(d3$estimate[d3$num == "1"], na.rm = TRUE)),
                 pch = 17, colour= "gray40", size = 4) +
      geom_point(aes(x = 1, y = median(d3$estimate[d3$num == "1"], na.rm = TRUE)),
@@ -353,9 +351,8 @@ ggplot(d3, aes(x = jit_num, y = estimate)) +
                 pch = 17, colour= "gray40", size = 4) +
      geom_point(aes(x = 3, y = median(d3$estimate[d3$num == "3"], na.rm = TRUE)),
                 pch = 17, colour="white", size = 2) +
-     annotate(geom = "text", x = 0.9,
+     annotate(geom = "text", x = 0.78,
               y = median(d3$estimate[d3$num == "1"], na.rm = TRUE), 
               position = 2, cex = 3, label = "median", col = "gray40")
 dev.off()
-
 
