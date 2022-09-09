@@ -285,7 +285,6 @@ col.DR   <- "gray55"
 col.bar  <- "gray5"
 col.fill <- "gray85"
 
-
 scenarios <- cbind(d$offtake_rate_HE, 
                    d$offtake_rate_current, 
                    d$offtake_rate_WE)
@@ -359,9 +358,6 @@ annotate_figure(figure, left = text_grob("\nProbability density\n",
                         bottom = text_grob("Estimated offtake rate (%)\n",
                                  size = cex.lab))
 dev.off()
-
-
-
 
 ```
 
