@@ -1,0 +1,624 @@
+
+# Analysis and visualization of expert assessments of orangutan population trends under different scenarios. For Meijaard et al. manuscript "Expert guided analysis for restoring the red ape in a whole or half earth context"
+# 
+# 2022-04-11, updated 2022-09-09 per Oryx formatting instructions
+# Andy Marshall
+
+# Load packages, versions
+# 
+# R version 4.1.3 (2022-03-10) 
+# 
+# tidyverse 1.3.1 ──
+# ✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+# ✔ tibble  3.1.7     ✔ dplyr   1.0.9
+# ✔ tidyr   1.2.0     ✔ stringr 1.4.0
+# ✔ readr   2.1.2     ✔ forcats 0.5.1
+# ggpubr 0.4.0
+
+
+library(tidyverse)
+library(ggpubr)
+
+
+# Pull & wrangle data
+
+d <- read_csv("data/data-2022-03-23.csv")
+d <- d %>%
+     pivot_longer(cols = -Names, names_to = 'Expert') %>%
+     pivot_wider(names_from = Names, values_from = value)
+
+
+
+# Analysis
+
+##Variation among experts
+
+
+# Absolute numbers quite variable:
+mean(d$pop_current)
+range(d$pop_current)
+mean(d$offtake_current, na.rm = TRUE)
+range(d$offtake_current, na.rm = TRUE)
+
+# Relative effects broadly consistent, e.g.,
+range(d$pop_2032_WE - d$pop_2032_current)
+range(d$pop_2032_HE - d$pop_2032_current) 
+range(d$offtake_WE - d$offtake_current, na.rm = TRUE) 
+range(d$offtake_HE - d$offtake_current, na.rm = TRUE)
+
+
+## Current conditions
+
+d$per_left_nochange <- 100 * d$pop_2032_current/d$pop_current
+median(d$per_left_nochange)
+quantile(d$per_left_nochange)
+
+d$offtake_rate_current <- 100 * (d$offtake_current / d$pop_current)
+median(d$offtake_rate_current, na.rm = TRUE)
+quantile(d$offtake_rate_current, na.rm = TRUE)
+
+## Half Earth
+
+d$per_left_HE       <- 100 * d$pop_2032_HE/d$pop_current
+median(d$per_left_HE)
+range(d$per_left_HE)
+
+# all but one expert predicted decline less than predicted under current conditions:
+d$per_left_HE - d$per_left_nochange
+
+d$offtake_rate_HE      <- 100 * (d$offtake_HE / d$pop_current)
+median(d$offtake_rate_HE)
+range(d$offtake_rate_HE)
+
+## Whole Earth
+
+d$per_left_WE       <- 100 * d$pop_2032_WE/d$pop_current
+median(d$per_left_WE)
+range(d$per_left_WE)
+
+d$offtake_rate_WE      <- 100 * (d$offtake_WE / d$pop_current)
+median(d$offtake_rate_WE)
+range(d$offtake_rate_WE)
+
+
+```
+
+## Aspriational scenario
+
+
+d$per_2122          <- 100 * d$pop_2122/d$pop_current
+median(d$per_2122)
+range(d$per_2122)
+
+
+
+# Figures, final versions
+
+# Figures formatted per Oryx guidelines
+
+## Figure 02
+
+indent.A      <- 375
+indent.B      <- 396
+cex.ax         <- 50
+cex.lab        <- 60
+cex.grid.maj   <- 2.5
+cex.grid.min   <- 2
+
+
+d$per_left_HE       <- 100 * d$pop_2032_HE/d$pop_current
+d$per_left_nochange <- 100 * d$pop_2032_current/d$pop_current
+d$per_left_WE       <- 100 * d$pop_2032_WE/d$pop_current
+d$per_2122          <- 100 * d$pop_2122/d$pop_current
+
+col.NC   <- "gray55"
+col.HE   <- "gray55"
+col.WE   <- "gray55"
+col.DR   <- "gray55"
+col.bar  <- "gray5"
+col.fill <- "gray85"
+
+p1 <-ggplot(d, aes(x = per_left_WE)) +
+     geom_histogram(aes(y = ..density..), bins = 80,
+                    col = col.bar, fill = col.fill) +
+     geom_density(alpha = 0.6, fill = col.WE) +
+     geom_point(aes(x=median(per_left_WE), y=0), 
+                pch = 17, colour = "gray40", size = 12) +
+     geom_point(aes(x=median(per_left_WE), y=0), 
+                pch = 17, colour = "white", size = 4) +
+     geom_segment(aes(x = 100, y = -0.001,
+                      xend = 100, yend = 0.04),
+                  color = "gray40", lty = 2, lwd = 2.5) +
+     xlab("") +
+     ylab("\n") + 
+     scale_x_continuous(limits = c(-10, 520),
+                        breaks = c(0, 100, 200, 300, 400, 500)) +
+     scale_y_continuous(limits =c(-0.0025, 0.04),
+                        breaks = c(0, 0.01, 0.02, 0.03, 0.04)) +
+     theme_minimal() +
+     theme(axis.text.x = element_blank()) +
+     annotate(geom = "text", x = indent.A, y = 0.0375, cex = cex.lab/3,
+              hjust = 0, label = "(a) Whole-Earth scenario") +
+     annotate(geom = "text", x = indent.B, y = 0.0325, cex = cex.lab/3,
+              hjust = 0,label = "(2032)") +
+     annotate(geom = "text", x = median(d$per_left_WE), y = -0.0025, 
+              cex = 14, label = "median") +
+     theme(axis.text = element_text(size = cex.ax)) + 
+     theme(panel.grid.major = element_line(size = cex.grid.maj),
+           panel.grid.minor = element_line(size = cex.grid.min,  linetype = 2))
+
+p2 <- ggplot(d, aes(x = per_left_nochange)) +
+     geom_histogram(aes(y = ..density..), bins = 80,
+                    col = col.bar, fill = col.fill) +
+     geom_density(alpha = 0.6, fill = col.NC) +
+     geom_segment(aes(x = 100, y = -0.001,
+                      xend = 100, yend = 0.04),
+                  color = "gray40", lty = 2, lwd = 2.5) + 
+     geom_point(aes(x = median(per_left_nochange), y = 0), 
+                pch = 17, colour="gray40", size = 12) +
+     geom_point(aes(x = median(per_left_nochange), y = 0), 
+                pch = 17, colour="white", size = 4) +
+     xlab("") +
+     ylab("\n") + 
+     scale_x_continuous(limits = c(-10, 520),
+                        breaks = c(0, 100, 200, 300, 400, 500)) +
+     scale_y_continuous(limits =c(-0.001, 0.04),
+                        breaks = c(0, 0.01, 0.02, 0.03, 0.04)) +
+     theme_minimal() +
+     theme(axis.text.x = element_blank()) +
+     annotate(geom = "text", x = indent.A, y = 0.0375, cex = cex.lab/3,
+              hjust = 0, label = "(b) Current Conditions") +
+     annotate(geom = "text", x = indent.B, y = 0.0325, cex = cex.lab/3,
+              hjust = 0, label = "(2032)") +
+     theme(axis.text = element_text(size = cex.ax)) + 
+     theme(panel.grid.major = element_line(size = cex.grid.maj),
+           panel.grid.minor = element_line(size = cex.grid.min,  linetype = 2))
+
+p3 <- ggplot(d, aes(x = per_left_HE)) +
+     geom_histogram(aes(y = ..density..), bins = 80,
+                    col = col.bar, fill = col.fill) +
+     geom_density(alpha = 0.6, fill = col.HE) +
+     geom_segment(aes(x = 100, y = -0.001,
+                      xend = 100, yend = 0.04),
+                  color = "gray40", lty = 2, lwd = 2.5) +
+     geom_point(aes(x = median(per_left_HE), y = 0), 
+                pch = 17, colour = "gray40", size = 12) +
+     geom_point(aes(x = median(per_left_HE), y = 0), 
+                pch = 17, colour="white", size = 4) +    
+     theme_minimal() +
+     theme(axis.text.x = element_blank()) +
+     xlab("") +
+     ylab("\n") + 
+     scale_x_continuous(limits = c(-10, 520),
+                        breaks = c(0, 100, 200, 300, 400, 500)) +
+     scale_y_continuous(limits =c(-0.001, 0.04),
+                        breaks = c(0, 0.01, 0.02, 0.03, 0.04)) +
+     annotate(geom = "text", x = indent.A, y = 0.0375, cex = cex.lab/3,
+              hjust = 0, label = "(c) Half-Earth scenario") +
+     annotate(geom = "text", x = indent.B, y = 0.0325, cex = cex.lab/3,
+              hjust = 0, label = "(2032)") +
+     theme(axis.text = element_text(size = cex.ax))+ 
+     theme(panel.grid.major = element_line(size = cex.grid.maj),
+           panel.grid.minor = element_line(size = cex.grid.min,  linetype = 2))
+
+p4 <- ggplot(d, aes(x = per_2122)) +
+     geom_histogram(aes(y = ..density..), bins = 80,
+                    col = col.bar, fill = col.fill) +
+     geom_density(alpha = 0.6, fill = col.DR) +
+     geom_segment(aes(x = 100, y = -0.001,
+                      xend = 100, yend = 0.04),
+                  color = "gray40", lty = 2, lwd = 2.5) +
+     geom_point(aes(x = median(per_2122), y = 0), 
+                pch = 17, colour = "gray40", size = 12) +
+     geom_point(aes(x=median(per_2122), y=0), 
+                pch = 17, colour = "white", size = 4) + 
+     theme_minimal() +
+     xlim(-100, 400)+
+     xlab("")+    #("\nEstimated % of current population") + 
+     ylab("\n") + 
+     scale_x_continuous(limits = c(-10, 520),
+                        breaks = c(0, 100, 200, 300, 400, 500)) +
+     scale_y_continuous(limits =c(-0.001, 0.04),
+                        breaks = c(0, 0.01, 0.02, 0.03, 0.04)) +
+     annotate(geom = "text", x = indent.A, y = 0.0375, cex = cex.lab/3,
+              hjust = 0, label = "(d) Zero-offtake,") +
+     annotate(geom = "text", x = indent.B, y = 0.0325, cex = cex.lab/3,
+              hjust = 0, label = "zero-forest loss scenario")  +
+     annotate(geom = "text", x = indent.B, y = 0.0275, cex = cex.lab/3,
+              hjust = 0, label = "(2122)") +
+     theme(axis.text = element_text(size = cex.ax))+ 
+     theme(panel.grid.major = element_line(size = cex.grid.maj),
+           panel.grid.minor = element_line(size = cex.grid.min,  linetype = 2))
+
+tiff("output/fig.02.tif", 
+     height = 3200, width = 2800, units = "px")
+
+library(ggpubr)
+figure <- ggarrange(p1, p2, p3, p4, 
+                    ncol = 1, nrow = 4)
+annotate_figure(figure, left = text_grob("\nProbability density\n",
+                                         rot = 90, size = cex.lab),
+                bottom = text_grob("\nEstimated % of current population\n",
+                                   size = cex.lab))
+dev.off()
+
+
+## Figure 03
+
+indent.A      <- 375
+indent.B      <- 376
+cex.ax         <- 50
+cex.lab        <- 60
+cex.grid.maj   <- 2.5
+cex.grid.min   <- 2
+
+d$offtake_rate_current <- 100 * (d$offtake_current / d$pop_current)
+d$offtake_rate_HE      <- 100 * (d$offtake_HE / d$pop_current)
+d$offtake_rate_WE      <- 100 * (d$offtake_WE / d$pop_current)
+
+col.NC   <- "gray55"
+col.HE   <- "gray55"
+col.WE   <- "gray55"
+col.DR   <- "gray55"
+col.bar  <- "gray5"
+col.fill <- "gray85"
+
+scenarios <- cbind(d$offtake_rate_HE, 
+                   d$offtake_rate_current, 
+                   d$offtake_rate_WE)
+
+my.cols         <- c(col.HE, col.NC, col.WE)
+my.axis.cols    <- c("white","white", "black")
+my.median.cols  <- c("black","white", "white")
+
+my.xlims <- c(-2, max(scenarios, na.rm = TRUE)+1)
+my.ylims <- c(-0.05, 0.65)
+
+my.labels <- c("(a) Half-Earth scenario   ",
+               "(b) Current Conditions    ",
+               "(c) Whole-Earth scenario")
+my.years1 <- c("(2032)", "(2032)", "(2032)")
+my.panels <- c("a)", "b)", "c)")
+
+my.plots <- list()
+
+for (i in 1:3) {
+     p <- eval(substitute(  
+          ggplot(d, aes(x = scenarios[, i])) +
+               geom_histogram(aes(y = ..density..), 
+                              col = "gray60", 
+                              fill = "gray80", 
+                              bins = 50) +
+               geom_density(alpha = 0.6, 
+                            fill = my.cols[i]) +
+               geom_point(aes(x = median(scenarios[, i], na.rm = TRUE), y = 0),
+                          pch = 17, colour="gray40", size = 12) +
+               geom_point(aes(x = median(scenarios[, i], na.rm = TRUE), y = 0),
+                          pch = 17, colour="white", size = 4) +  
+               annotate(geom = "text", 
+                        x = median(scenarios[, i], na.rm = TRUE),
+                        y = -0.05, position = 1,
+                        cex = 15, label = "median", col = my.median.cols[i]) +
+               xlab("") + 
+               ylab("\n") + 
+               xlim(my.xlims[1], my.xlims[2]) +
+               ylim(my.ylims[1], my.ylims[2]) +
+               theme_minimal() +
+               theme(axis.text.x = element_text(colour = my.axis.cols[i]),
+                     axis.title.x = element_text(colour = my.axis.cols[i])) +    
+               annotate(geom = "text", 
+                        x = 13.8,  y = 0.65,
+                        pos = 1,
+                        cex = cex.lab/3,
+                        vjust = 1,
+                        label = my.labels[i]) + 
+               annotate(geom = "text", 
+                        x = 12.5, y = 0.64,
+                        cex = cex.lab/3,
+                        vjust = 2.5,
+                        label = my.years1[i]) +
+               theme(axis.text = element_text(size = cex.ax))+ 
+               theme(panel.grid.major = element_line(size = cex.grid.maj),
+                     panel.grid.minor = element_line(size = cex.grid.min,  linetype = 2))
+          
+          , list(i = i)))
+     my.plots[[i]] <- p 
+}  
+
+tiff("output/fig.03.tif", 
+     height = 2800, width = 2800, units = "px")
+
+figure <- ggarrange(my.plots[[1]], my.plots[[2]], my.plots[[3]],
+                    ncol = 1, nrow = 3)
+annotate_figure(figure, left = text_grob("\nProbability density\n",
+                                         rot = 90,
+                                         size = cex.lab),
+                bottom = text_grob("Estimated offtake rate (%)\n",
+                                   size = cex.lab))
+dev.off()
+
+
+
+## Figure S02
+
+d$offtake_rate_current <- 100 * (d$offtake_current / d$pop_current)
+d$offtake_rate_HE      <- 100 * (d$offtake_HE / d$pop_current)
+d$offtake_rate_WE      <- 100 * (d$offtake_WE / d$pop_current)
+
+d2 <- as.data.frame(cbind(d$Expert, d$offtake_rate_HE, 
+                          d$offtake_rate_current, d$offtake_rate_WE))
+
+colnames(d2) <- c("Expert", "offtake_rate_HE", 
+                  "offtake_rate_current", "offtake_rate_WE")
+
+scenario <- c("offtake_rate_HE", "offtake_rate_current", "offtake_rate_WE")
+num <- 1:3
+
+crib <- as.data.frame(cbind(scenario, num))
+
+d3 <- d2 %>% 
+     gather(2:4, key = "scenario", value = "estimate") %>% 
+     left_join(crib)
+
+d3$jit_num <- jitter(as.numeric(d3$num), amount = 0.035)
+d3$estimate <- as.numeric(d3$estimate)
+
+pdf("output/fig.s02.pdf", height = 6, width = 5)
+
+ggplot(d3, aes(x = jit_num, y = estimate)) +
+     geom_point(aes(color = factor(Expert)), size = 2.5) +
+     geom_line(aes(group = factor(Expert),
+                   color = factor(Expert)),
+               alpha = 0.5) +
+     scale_color_viridis_d() + 
+     xlab("") + 
+     ylab("Estimated offtake rate (%)") + 
+     theme_minimal() +
+     theme(plot.margin = margin(1, 1, 1, 0.5, "cm")) +
+     theme(legend.position = "none") +  
+     theme(panel.grid.major.y = element_line(size = 0.5,
+                                             color = "gray80")) +
+     scale_x_continuous(breaks = c(1,2,3),
+                        limits = c (0.75, 3.1),
+                        labels = c("Half Earth", 
+                                   "Current", 
+                                   "Whole Earth")) +
+     theme(axis.text = element_text(size = 11)) +
+     geom_point(aes(x = 1, y = median(d3$estimate[d3$num == "1"], na.rm = TRUE)),
+                pch = 17, colour= "gray40", size = 4) +
+     geom_point(aes(x = 1, y = median(d3$estimate[d3$num == "1"], na.rm = TRUE)),
+                pch = 17, colour="white", size = 2) +
+     geom_point(aes(x = 2, y = median(d3$estimate[d3$num == "2"], na.rm = TRUE)),
+                pch = 17, colour= "gray40", size = 4) +
+     geom_point(aes(x = 2, y = median(d3$estimate[d3$num == "2"], na.rm = TRUE)),
+                pch = 17, colour="white", size = 2) +
+     geom_point(aes(x = 3, y = median(d3$estimate[d3$num == "3"], na.rm = TRUE)),
+                pch = 17, colour= "gray40", size = 4) +
+     geom_point(aes(x = 3, y = median(d3$estimate[d3$num == "3"], na.rm = TRUE)),
+                pch = 17, colour="white", size = 2) +
+     annotate(geom = "text", x = 0.78,
+              y = median(d3$estimate[d3$num == "1"], na.rm = TRUE), 
+              position = 2, cex = 3, label = "median", col = "gray40")
+dev.off()
+
+
+
+# Figures - old versions
+
+# These are the colored versions of figures 2 & 3 in the original submission.
+
+## Figure 02
+
+
+col.NC <- "cornflowerblue"
+col.HE <- "darkorange"
+col.WE <- "darkorange4"
+col.DR <- "darkgreen"
+
+d$per_left_HE       <- 100 * d$pop_2032_HE/d$pop_current
+d$per_left_nochange <- 100 * d$pop_2032_current/d$pop_current
+d$per_left_WE       <- 100 * d$pop_2032_WE/d$pop_current
+d$per_2122          <- 100 * d$pop_2122/d$pop_current
+
+p1 <-ggplot(d, aes(x = per_left_WE)) +
+     geom_histogram(aes(y = ..density..), bins = 80,
+                    col = "gray60", fill = "gray80") +
+     geom_density(alpha = 0.6, fill = col.WE) +
+     geom_point(aes(x=median(per_left_WE), y=0), 
+                pch = 17, colour = "gray40", size = 3) +
+     geom_point(aes(x=median(per_left_WE), y=0), 
+                pch = 17, colour = "white", size = 1.5) +
+     geom_segment(aes(x = 100, y = -0.001,
+                      xend = 100, yend = 0.04),
+                  color = "gray40", lty = 2, lwd = 0.65) +
+     xlab("") +
+     ylab("\n") + 
+     scale_x_continuous(limits = c(-10, 520),
+                        breaks = c(0, 100, 200, 300, 400, 500)) +
+     scale_y_continuous(limits =c(-0.0025, 0.04),
+                        breaks = c(0, 0.01, 0.02, 0.03, 0.04)) +
+     theme_minimal() +
+     theme(axis.text.x = element_blank()) +
+     annotate(geom = "text", x = 410, y = 0.0375, cex = 4.5,
+              hjust = 0, label = "Whole Earth scenario", col = col.WE) +
+     annotate(geom = "text", x = 410, y = 0.0325, cex = 4.5,
+              hjust = 0,label = "(2032)", col = col.WE) +
+     annotate(geom = "text", x = median(d$per_left_WE), y = -0.0025, 
+              cex = 3.5, label = "median", col = "gray40") +
+     annotate(geom = "text", x = -10, y = 0.0375, 
+              cex = 7, label = "a)", col = "black")
+
+p2 <- ggplot(d, aes(x = per_left_nochange)) +
+     geom_histogram(aes(y = ..density..), bins = 80,
+                    col = "gray60", fill = "gray80") +
+     geom_density(alpha = 0.6, fill = col.NC) +
+     geom_segment(aes(x = 100, y = -0.001,
+                      xend = 100, yend = 0.04),
+                  color = "gray40", lty = 2, lwd = 0.65) +    
+     geom_point(aes(x = median(per_left_nochange), y = 0), 
+                pch = 17, colour="gray40", size = 3) +
+     geom_point(aes(x = median(per_left_nochange), y = 0), 
+                pch = 17, colour="white", size = 1.5) +
+     xlab("") +
+     ylab("\n") + 
+     scale_x_continuous(limits = c(-10, 520),
+                        breaks = c(0, 100, 200, 300, 400, 500)) +
+     scale_y_continuous(limits =c(-0.001, 0.04),
+                        breaks = c(0, 0.01, 0.02, 0.03, 0.04)) +
+     theme_minimal() +
+     theme(axis.text.x = element_blank()) +
+     annotate(geom = "text", x = 410, y = 0.0375, cex = 4.5,
+              hjust = 0, label = "Current conditions", col = col.NC) +
+     annotate(geom = "text", x = 410, y = 0.0325, cex = 4.5,
+              hjust = 0, label = "(2032)", col = col.NC)+
+     annotate(geom = "text", x = -10, y = 0.0375, 
+              cex = 7, label = "b)", col = "black")
+
+p3 <- ggplot(d, aes(x = per_left_HE)) +
+     geom_histogram(aes(y = ..density..), bins = 80,
+                    col = "gray60", fill = "gray80") +
+     geom_density(alpha = 0.6, fill = col.HE) +
+     geom_segment(aes(x = 100, y = -0.001,
+                      xend = 100, yend = 0.04),
+                  color = "gray40", lty = 2, lwd = 0.65) +
+     geom_point(aes(x = median(per_left_HE), y = 0), 
+                pch = 17, colour = "gray40", size = 3) +
+     geom_point(aes(x = median(per_left_HE), y = 0), 
+                pch = 17, colour="white", size = 1.5) +    
+     theme_minimal() +
+     theme(axis.text.x = element_blank()) +
+     xlab("") +
+     ylab("\n") + 
+     scale_x_continuous(limits = c(-10, 520),
+                        breaks = c(0, 100, 200, 300, 400, 500)) +
+     scale_y_continuous(limits =c(-0.001, 0.04),
+                        breaks = c(0, 0.01, 0.02, 0.03, 0.04)) +
+     annotate(geom = "text", x = 410, y = 0.0375, cex = 4.5,
+              hjust = 0, label = "Half Earth scenario", col = col.HE) +
+     annotate(geom = "text", x = 410, y = 0.0325, cex = 4.5,
+              hjust = 0, label = "(2032)", col = col.HE)+
+     annotate(geom = "text", x = -10, y = 0.0375, 
+              cex = 7, label = "c)", col = "black")
+
+p4 <- ggplot(d, aes(x = per_2122)) +
+     geom_histogram(aes(y = ..density..), bins = 80,
+                    col = "gray60", fill = "gray80") +
+     geom_density(alpha = 0.6, fill = col.DR) +
+     geom_segment(aes(x = 100, y = -0.001,
+                      xend = 100, yend = 0.04),
+                  color = "gray40", lty = 2, lwd = 0.65) +
+     geom_point(aes(x = median(per_2122), y = 0), 
+                pch = 17, colour = "gray40", size = 3) +
+     geom_point(aes(x=median(per_2122), y=0), 
+                pch = 17, colour = "white", size = 1.5) + 
+     theme_minimal() +
+     xlim(-100, 400)+
+     xlab("\nEstimated % of current population") + 
+     ylab("\n") + 
+     scale_x_continuous(limits = c(-10, 520),
+                        breaks = c(0, 100, 200, 300, 400, 500)) +
+     scale_y_continuous(limits =c(-0.001, 0.04),
+                        breaks = c(0, 0.01, 0.02, 0.03, 0.04)) +
+     annotate(geom = "text", x = 410, y = 0.0375, cex = 4.5,
+              hjust = 0, label = "Zero-offtake,", col = col.DR) +
+     annotate(geom = "text", x = 410, y = 0.0325, cex = 4.5,
+              hjust = 0, label = "zero-forest loss scenario", 
+              col = col.DR)  +
+     annotate(geom = "text", x = 410, y = 0.0275, cex = 4.5,
+              hjust = 0, label = "(2122)", col = col.DR)+
+     annotate(geom = "text", x = -10, y = 0.0375, 
+              cex = 7, label = "d)", col = "black")
+
+pdf("output/fig.02.pdf", height = 12, width = 10)
+
+library(ggpubr)
+figure <- ggarrange(p1, p2, p3, p4, 
+                    ncol = 1, nrow = 4)
+annotate_figure(figure,left = text_grob("Density",
+                                        rot = 90))
+dev.off()
+
+
+
+## Figure 03
+
+col.NC <- "cornflowerblue"
+col.HE <- "darkorange"
+col.WE <- "darkorange4"
+col.DR <- "darkgreen"
+
+d$offtake_rate_current <- 100 * (d$offtake_current / d$pop_current)
+d$offtake_rate_HE      <- 100 * (d$offtake_HE / d$pop_current)
+d$offtake_rate_WE      <- 100 * (d$offtake_WE / d$pop_current)
+
+scenarios <- cbind(d$offtake_rate_HE, 
+                   d$offtake_rate_current, 
+                   d$offtake_rate_WE)
+
+my.cols         <- c(col.HE, col.NC, col.WE)
+my.axis.cols    <- c("white","white", "black")
+my.median.cols  <- c("gray40","white", "white")
+
+my.xlims <- c(-2, max(scenarios, na.rm = TRUE)+1)
+my.ylims <- c(-0.05, 0.65)
+
+my.labels <- c("Half Earth scenario",
+               "Current conditions",
+               "Whole Earth scenario")
+my.years1 <- c("(2032)", "(2032)", "(2032)")
+my.panels <- c("a)", "b)", "c)")
+
+my.plots <- list()
+
+for (i in 1:3) {
+     p <- eval(substitute(  
+          ggplot(d, aes(x = scenarios[, i])) +
+               geom_histogram(aes(y = ..density..), 
+                              col = "gray60", 
+                              fill = "gray80", 
+                              bins = 50) +
+               geom_density(alpha = 0.6, 
+                            fill = my.cols[i]) +
+               geom_point(aes(x = median(scenarios[, i], na.rm = TRUE), y = 0),
+                          pch = 17, colour="gray40", size = 3) +
+               geom_point(aes(x = median(scenarios[, i], na.rm = TRUE), y = 0),
+                          pch = 17, colour="white", size = 1.5) +  
+               annotate(geom = "text", 
+                        x = median(scenarios[, i], na.rm = TRUE),
+                        y = -0.05, position = 1,
+                        cex = 3, label = "median", col = my.median.cols[i]) +
+               xlab("") + 
+               ylab("\n") + 
+               xlim(my.xlims[1], my.xlims[2]) +
+               ylim(my.ylims[1], my.ylims[2]) +
+               theme_minimal() +
+               theme(axis.text.x = element_text(colour = my.axis.cols[i]),
+                     axis.title.x = element_text(colour = my.axis.cols[i])) +    
+               annotate(geom = "text", 
+                        x = my.xlims[2],  y = 0.65,
+                        cex = 4.5,
+                        hjust = 1, vjust = 1,
+                        label = my.labels[i], col = my.cols[i]) + 
+               annotate(geom = "text", 
+                        x = my.xlims[2], y = 0.64,
+                        cex = 4.5,
+                        hjust = 1, vjust = 2.5,
+                        label = my.years1[i], col = my.cols[i]) +
+               annotate(geom = "text", x = -1.95, y = 0.58, 
+                        cex = 7, label = my.panels[i], col = "black")
+          
+          , list(i = i)))
+     my.plots[[i]] <- p 
+}  
+
+pdf("output/fig.03.pdf", height = 10, width = 10)
+
+figure <- ggarrange(my.plots[[1]], my.plots[[2]], my.plots[[3]],
+                    ncol = 1, nrow = 3)
+annotate_figure(figure, left = text_grob("Density",
+                                         rot = 90),
+                bottom = text_grob("Estimated offtake rate (%)"))
+dev.off()
+
+
+
